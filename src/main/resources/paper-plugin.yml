@@ -1,0 +1,19 @@
+name: UltimateReports
+version: '1.0'
+authors:
+  - xF3d3
+main: dev.xf3d3.ultimatereports.UltimateReports
+loader: dev.xf3d3.ultimatereports.UltimateReportsLoader
+folia-supported: true
+api-version: '1.21'
+dependencies:
+  server:
+    ViaVersion:
+      load: BEFORE
+      required: false
+      join-classpath: true
+
+    PlaceholderAPI:
+      load: BEFORE
+      required: false
+      join-classpath: true
