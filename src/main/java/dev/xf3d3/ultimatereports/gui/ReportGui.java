@@ -23,10 +23,16 @@ import java.util.stream.Collectors;
 
 public class ReportGui extends BaseGui {
     private final int id;
+    private final Report.Status previousFilter;
 
     public ReportGui(@NotNull UltimateReports plugin, @NotNull Player player, int id) {
+        this(plugin, player, id, Report.Status.OPEN);
+    }
+
+    public ReportGui(@NotNull UltimateReports plugin, @NotNull Player player, int id, @NotNull Report.Status previousFilter) {
         super(plugin, player);
         this.id = id;
+        this.previousFilter = previousFilter;
 
         open();
     }
@@ -193,7 +199,9 @@ public class ReportGui extends BaseGui {
                                 plugin.getReportsManager().deleteReport(player, report);
                                 click.getWhoClicked().sendMessage(MineDown.parse(plugin.getSettings().getGeneral().getPrefix() + plugin.getMessages().getReport().getReportDeleted()));
 
-                                click.getGui().close();
+                                // Navigate back to the previous reports list page
+                                navigateBackToReportsList(previousFilter);
+
                                 return true;
                             },
                             serialize(plugin.getGuiConfig().getReport().getDelete())
@@ -353,7 +361,7 @@ public class ReportGui extends BaseGui {
                                     return true;
                                 }
 
-                                new ProcessGui(plugin, player, report, reporterPlayer);
+                                new ProcessGui(plugin, player, report, reporterPlayer, previousFilter);
                                 return true;
                             },
                             serialize(
