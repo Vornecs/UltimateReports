@@ -57,7 +57,7 @@ public class ReportsList extends BaseGui {
             group.addElement((new StaticGuiElement('o',
                     createPlayerSkull(reporter),
                     click -> {
-                        new ReportGui(plugin, player, report.getId());
+                        new ReportGui(plugin, player, report.getId(), type);
 
                         return true;
                     },

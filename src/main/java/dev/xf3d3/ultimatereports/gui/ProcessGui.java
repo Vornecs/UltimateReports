@@ -11,14 +11,22 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Set;
+
 public class ProcessGui extends BaseGui {
     private final Report report;
     private OnlinePlayer reporter;
+    private final Report.Status previousFilter;
 
     public ProcessGui(@NotNull UltimateReports plugin, @NotNull Player player, @NotNull Report report, @NotNull OnlinePlayer reporter) {
+        this(plugin, player, report, reporter, Report.Status.OPEN);
+    }
+
+    public ProcessGui(@NotNull UltimateReports plugin, @NotNull Player player, @NotNull Report report, @NotNull OnlinePlayer reporter, @NotNull Report.Status previousFilter) {
         super(plugin, player);
         this.report = report;
         this.reporter = reporter;
+        this.previousFilter = previousFilter;
 
         open();
     }
@@ -61,7 +69,23 @@ public class ProcessGui extends BaseGui {
                                     if (onlineReporter != null) onlineReporter.sendMessage(MineDown.parse(plugin.getSettings().getGeneral().getPrefix() + plugin.getMessages().getReport().getRewards()));
                                 }
 
-                                click.getGui().close();
+                                // Navigate back to the previous reports list page
+                                plugin.runAsync(task -> {
+                                    Set<Report> reports;
+                                    if (previousFilter.equals(Report.Status.WAITING)) {
+                                        reports = plugin.getReportsManager().getWaitingReports();
+                                    } else if (previousFilter.equals(Report.Status.IN_PROGRESS)) {
+                                        reports = plugin.getReportsManager().getInProgressReports();
+                                    } else if (previousFilter.equals(Report.Status.DONE)) {
+                                        reports = plugin.getReportsManager().getClosedReports();
+                                    } else if (previousFilter.equals(Report.Status.ARCHIVED)) {
+                                        reports = plugin.getReportsManager().getArchivedReports();
+                                    } else {
+                                        reports = plugin.getReportsManager().getAllReports();
+                                    }
+                                    plugin.run(t -> new ReportsList(plugin, player, reports, previousFilter));
+                                });
+
                                 return true;
                             },
                             serialize(
@@ -89,7 +113,23 @@ public class ProcessGui extends BaseGui {
                                 }
 
                                 plugin.getReportsManager().deleteReport(player, report);
-                                click.getGui().close();
+
+                                // Navigate back to the previous reports list page
+                                plugin.runAsync(task -> {
+                                    Set<Report> reports;
+                                    if (previousFilter.equals(Report.Status.WAITING)) {
+                                        reports = plugin.getReportsManager().getWaitingReports();
+                                    } else if (previousFilter.equals(Report.Status.IN_PROGRESS)) {
+                                        reports = plugin.getReportsManager().getInProgressReports();
+                                    } else if (previousFilter.equals(Report.Status.DONE)) {
+                                        reports = plugin.getReportsManager().getClosedReports();
+                                    } else if (previousFilter.equals(Report.Status.ARCHIVED)) {
+                                        reports = plugin.getReportsManager().getArchivedReports();
+                                    } else {
+                                        reports = plugin.getReportsManager().getAllReports();
+                                    }
+                                    plugin.run(t -> new ReportsList(plugin, player, reports, previousFilter));
+                                });
 
                                 return true;
                             },

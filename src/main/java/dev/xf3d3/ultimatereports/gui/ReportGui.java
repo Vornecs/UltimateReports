@@ -17,16 +17,23 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class ReportGui extends BaseGui {
     private final int id;
+    private final Report.Status previousFilter;
 
     public ReportGui(@NotNull UltimateReports plugin, @NotNull Player player, int id) {
+        this(plugin, player, id, Report.Status.OPEN);
+    }
+
+    public ReportGui(@NotNull UltimateReports plugin, @NotNull Player player, int id, @NotNull Report.Status previousFilter) {
         super(plugin, player);
         this.id = id;
+        this.previousFilter = previousFilter;
 
         open();
     }
@@ -193,7 +200,23 @@ public class ReportGui extends BaseGui {
                                 plugin.getReportsManager().deleteReport(player, report);
                                 click.getWhoClicked().sendMessage(MineDown.parse(plugin.getSettings().getGeneral().getPrefix() + plugin.getMessages().getReport().getReportDeleted()));
 
-                                click.getGui().close();
+                                // Navigate back to the previous reports list page
+                                plugin.runAsync(task -> {
+                                    Set<Report> reports;
+                                    if (previousFilter.equals(Report.Status.WAITING)) {
+                                        reports = plugin.getReportsManager().getWaitingReports();
+                                    } else if (previousFilter.equals(Report.Status.IN_PROGRESS)) {
+                                        reports = plugin.getReportsManager().getInProgressReports();
+                                    } else if (previousFilter.equals(Report.Status.DONE)) {
+                                        reports = plugin.getReportsManager().getClosedReports();
+                                    } else if (previousFilter.equals(Report.Status.ARCHIVED)) {
+                                        reports = plugin.getReportsManager().getArchivedReports();
+                                    } else {
+                                        reports = plugin.getReportsManager().getAllReports();
+                                    }
+                                    plugin.run(t -> new ReportsList(plugin, player, reports, previousFilter));
+                                });
+
                                 return true;
                             },
                             serialize(plugin.getGuiConfig().getReport().getDelete())
@@ -353,7 +376,7 @@ public class ReportGui extends BaseGui {
                                     return true;
                                 }
 
-                                new ProcessGui(plugin, player, report, reporterPlayer);
+                                new ProcessGui(plugin, player, report, reporterPlayer, previousFilter);
                                 return true;
                             },
                             serialize(
