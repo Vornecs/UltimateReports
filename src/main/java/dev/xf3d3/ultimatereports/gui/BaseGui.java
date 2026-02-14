@@ -147,7 +147,7 @@ public abstract class BaseGui {
                 case IN_PROGRESS -> plugin.getReportsManager().getInProgressReports();
                 case DONE -> plugin.getReportsManager().getClosedReports();
                 case ARCHIVED -> plugin.getReportsManager().getArchivedReports();
-                default -> plugin.getReportsManager().getAllReports();
+                case OPEN -> plugin.getReportsManager().getAllReports();
             };
             plugin.run(t -> new ReportsList(plugin, player, reports, previousFilter));
         });
