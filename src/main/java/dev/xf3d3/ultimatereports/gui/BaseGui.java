@@ -142,18 +142,13 @@ public abstract class BaseGui {
 
     protected void navigateBackToReportsList(Report.Status previousFilter) {
         plugin.runAsync(task -> {
-            Set<Report> reports;
-            if (previousFilter.equals(Report.Status.WAITING)) {
-                reports = plugin.getReportsManager().getWaitingReports();
-            } else if (previousFilter.equals(Report.Status.IN_PROGRESS)) {
-                reports = plugin.getReportsManager().getInProgressReports();
-            } else if (previousFilter.equals(Report.Status.DONE)) {
-                reports = plugin.getReportsManager().getClosedReports();
-            } else if (previousFilter.equals(Report.Status.ARCHIVED)) {
-                reports = plugin.getReportsManager().getArchivedReports();
-            } else {
-                reports = plugin.getReportsManager().getAllReports();
-            }
+            Set<Report> reports = switch (previousFilter) {
+                case WAITING -> plugin.getReportsManager().getWaitingReports();
+                case IN_PROGRESS -> plugin.getReportsManager().getInProgressReports();
+                case DONE -> plugin.getReportsManager().getClosedReports();
+                case ARCHIVED -> plugin.getReportsManager().getArchivedReports();
+                default -> plugin.getReportsManager().getAllReports();
+            };
             plugin.run(t -> new ReportsList(plugin, player, reports, previousFilter));
         });
     }
