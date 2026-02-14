@@ -19,6 +19,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Set;
 
 public abstract class BaseGui {
     protected final UltimateReports plugin;
@@ -137,5 +138,23 @@ public abstract class BaseGui {
             skull.setItemMeta(skullMeta);
         }
         return skull;
+    }
+
+    protected void navigateBackToReportsList(Report.Status previousFilter) {
+        plugin.runAsync(task -> {
+            Set<Report> reports;
+            if (previousFilter.equals(Report.Status.WAITING)) {
+                reports = plugin.getReportsManager().getWaitingReports();
+            } else if (previousFilter.equals(Report.Status.IN_PROGRESS)) {
+                reports = plugin.getReportsManager().getInProgressReports();
+            } else if (previousFilter.equals(Report.Status.DONE)) {
+                reports = plugin.getReportsManager().getClosedReports();
+            } else if (previousFilter.equals(Report.Status.ARCHIVED)) {
+                reports = plugin.getReportsManager().getArchivedReports();
+            } else {
+                reports = plugin.getReportsManager().getAllReports();
+            }
+            plugin.run(t -> new ReportsList(plugin, player, reports, previousFilter));
+        });
     }
 }

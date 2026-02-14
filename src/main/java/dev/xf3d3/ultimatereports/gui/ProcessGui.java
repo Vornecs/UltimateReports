@@ -11,8 +11,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Set;
-
 public class ProcessGui extends BaseGui {
     private final Report report;
     private OnlinePlayer reporter;
@@ -70,21 +68,7 @@ public class ProcessGui extends BaseGui {
                                 }
 
                                 // Navigate back to the previous reports list page
-                                plugin.runAsync(task -> {
-                                    Set<Report> reports;
-                                    if (previousFilter.equals(Report.Status.WAITING)) {
-                                        reports = plugin.getReportsManager().getWaitingReports();
-                                    } else if (previousFilter.equals(Report.Status.IN_PROGRESS)) {
-                                        reports = plugin.getReportsManager().getInProgressReports();
-                                    } else if (previousFilter.equals(Report.Status.DONE)) {
-                                        reports = plugin.getReportsManager().getClosedReports();
-                                    } else if (previousFilter.equals(Report.Status.ARCHIVED)) {
-                                        reports = plugin.getReportsManager().getArchivedReports();
-                                    } else {
-                                        reports = plugin.getReportsManager().getAllReports();
-                                    }
-                                    plugin.run(t -> new ReportsList(plugin, player, reports, previousFilter));
-                                });
+                                navigateBackToReportsList(previousFilter);
 
                                 return true;
                             },
@@ -115,21 +99,7 @@ public class ProcessGui extends BaseGui {
                                 plugin.getReportsManager().deleteReport(player, report);
 
                                 // Navigate back to the previous reports list page
-                                plugin.runAsync(task -> {
-                                    Set<Report> reports;
-                                    if (previousFilter.equals(Report.Status.WAITING)) {
-                                        reports = plugin.getReportsManager().getWaitingReports();
-                                    } else if (previousFilter.equals(Report.Status.IN_PROGRESS)) {
-                                        reports = plugin.getReportsManager().getInProgressReports();
-                                    } else if (previousFilter.equals(Report.Status.DONE)) {
-                                        reports = plugin.getReportsManager().getClosedReports();
-                                    } else if (previousFilter.equals(Report.Status.ARCHIVED)) {
-                                        reports = plugin.getReportsManager().getArchivedReports();
-                                    } else {
-                                        reports = plugin.getReportsManager().getAllReports();
-                                    }
-                                    plugin.run(t -> new ReportsList(plugin, player, reports, previousFilter));
-                                });
+                                navigateBackToReportsList(previousFilter);
 
                                 return true;
                             },

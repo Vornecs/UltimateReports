@@ -17,7 +17,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -201,21 +200,7 @@ public class ReportGui extends BaseGui {
                                 click.getWhoClicked().sendMessage(MineDown.parse(plugin.getSettings().getGeneral().getPrefix() + plugin.getMessages().getReport().getReportDeleted()));
 
                                 // Navigate back to the previous reports list page
-                                plugin.runAsync(task -> {
-                                    Set<Report> reports;
-                                    if (previousFilter.equals(Report.Status.WAITING)) {
-                                        reports = plugin.getReportsManager().getWaitingReports();
-                                    } else if (previousFilter.equals(Report.Status.IN_PROGRESS)) {
-                                        reports = plugin.getReportsManager().getInProgressReports();
-                                    } else if (previousFilter.equals(Report.Status.DONE)) {
-                                        reports = plugin.getReportsManager().getClosedReports();
-                                    } else if (previousFilter.equals(Report.Status.ARCHIVED)) {
-                                        reports = plugin.getReportsManager().getArchivedReports();
-                                    } else {
-                                        reports = plugin.getReportsManager().getAllReports();
-                                    }
-                                    plugin.run(t -> new ReportsList(plugin, player, reports, previousFilter));
-                                });
+                                navigateBackToReportsList(previousFilter);
 
                                 return true;
                             },
